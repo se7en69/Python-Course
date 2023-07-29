@@ -1,0 +1,153 @@
+$ download sra for ubuntu
+
+wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
+
+
+
+$ extract files
+
+tar -vxzf sratoolkit.tar.gz
+
+
+
+$ append the path to the binaries to your PATH
+
+export PATH=$PATH:$PWD/sratoolkit.3.0.0-ubuntu64/bin
+
+
+
+$ checking the fastq files
+
+which fastq-dump
+
+
+
+$ This should produce output similar to:
+
+/Users/92318/sratoolkit.3.0.0-ubuntu/bin/fastq-dump
+
+
+
+$ configure the files
+
+vdb-config -i
+
+
+
+$ Test that the toolkit is functional
+
+fastq-dump --stdout -X 2 SRR390728
+
+
+
+$ Within a few seconds, the command should produce this exact output (and nothing else):
+
+Read 2 spots for SRR390728
+
+Written 2 spots for SRR390728
+
+@SRR390728.1 1 length=72
+
+CATTCTTCACGTAGTTCTCGAGCCTTGGTTTTCAGCGATGGAGAATGACTTTGACAAGCTGAGAGAAGNTNC
+
+
+
+$ fastqc-install
+
+sudo apt-get update
+
+sudo apt-get install fastqc
+
+
+
+$ fasterq-dump --convert sra to fastq
+
+fsaterq-dump /home/92318/lab#3/SRR19440499/SRR19440499.SRA
+
+
+
+$ Fastqc  quality control
+
+fastqc data/demo.fastq -o data/
+
+
+
+$ install porechop/trimmomatic
+
+#sudo apt-get install porechop
+
+
+
+$ porechop for trimming the data
+
+porechop -i SRR19440499.fastq > trimmed.fastq
+
+
+
+$ install bowtie2 and bwa
+
+sudo apt-get update
+
+sudo apt-get install bowtie2
+
+sudo apt-get install bwa
+
+
+
+$ indexing the genome with Fastq file
+
+bwa index -p genome grch38.fa
+
+
+
+$ after indexing mapping of genome will for Reads
+
+bwa mem -t 2 genome trimmed.fastq > align.sam
+
+
+
+$ installing samtools
+
+sudo apt install samtools
+
+
+
+$ sam-file to bam-file
+
+samtools view -S -b align.sam > align.bam
+
+
+
+$ sorting the bam-file
+
+samtools sort -O sort.bam align.bam
+
+
+
+$ decompress the gtf file
+
+gunzip Saccharomyces_cerevisiae.R64-1-1.107.gtf.gz
+
+
+
+$ indexing the bam-file
+
+samtools index sort.bam
+
+
+
+$install htseq
+
+sudo apt-get install python.htseq
+
+
+
+$ sorting the sam file using samtools
+
+samtools view -f 4 align.sam
+
+
+
+$ feature counting using the gtseq-count
+
+htseq-count --f bam sort.bam Saccharomyces_cerevisiae.R64-1-1.107.gtf > sort.ham
